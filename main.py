@@ -7,6 +7,7 @@ from asteroidfield import AsteroidField
 from shot import Shot
 import asyncio
 from screen import draw_game_over_screen, draw_title_screen
+from touch_controls import TouchControls
 
 
 async def main():
@@ -15,9 +16,11 @@ async def main():
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
     clock = pygame.time.Clock()
     dt = 0
+
+    touch = TouchControls(SCREEN_WIDTH, SCREEN_HEIGHT)
 
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
@@ -30,6 +33,7 @@ async def main():
     def reset_game():
         nonlocal player, score
         score = 0
+        touch.reset()
         updatable.empty()
         drawable.empty()
         asteroids.empty()
@@ -41,7 +45,7 @@ async def main():
         Shot.containers = (shots, drawable, updatable)
 
         AsteroidField()
-        player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, touch)
 
     # Title screen
     waiting = True
@@ -53,6 +57,8 @@ async def main():
             if event.type == pygame.QUIT:
                 return
             if event.type == pygame.KEYDOWN:
+                waiting = False
+            if event.type == pygame.FINGERDOWN:
                 waiting = False
         blink_timer += clock.tick(60) / 1000
         if blink_timer >= blink_interval:
@@ -70,6 +76,7 @@ async def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            touch.handle_event(event)
 
         screen.fill("black")
 
@@ -83,12 +90,15 @@ async def main():
                 log_event("player_hit")
                 print("Game over!")
                 draw_game_over_screen(screen, score)
+                touch.reset()
                 waiting = True
                 while waiting:
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             return
                         if event.type == pygame.KEYDOWN:
+                            waiting = False
+                        if event.type == pygame.FINGERDOWN:
                             waiting = False
                     clock.tick(60)
                     await asyncio.sleep(0)
@@ -107,6 +117,8 @@ async def main():
         font_score = pygame.font.SysFont(None, 36)
         score_surf = font_score.render(f"Score: {score}", True, "white")
         screen.blit(score_surf, (10, 10))
+
+        touch.draw(screen)
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000

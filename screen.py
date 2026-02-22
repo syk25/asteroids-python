@@ -14,7 +14,7 @@ def draw_game_over_screen(screen, score):
     score_surf = font_score.render(f"Score: {score}", True, (200, 200, 50))
     screen.blit(score_surf, score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
 
-    hint = font_hint.render("Press any key to play again", True, (150, 150, 150))
+    hint = font_hint.render("Tap or press any key to play again", True, (150, 150, 150))
     screen.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT * 2 // 3)))
 
     pygame.display.flip()
@@ -32,11 +32,13 @@ def draw_title_screen(screen, show_title):
         screen.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)))
 
     controls = [
-        ("W / Up",    "Move forward"),
-        ("S / Down",  "Move backward"),
-        ("A / Left",  "Rotate left"),
-        ("D / Right", "Rotate right"),
-        ("Space",     "Shoot"),
+        ("W / Up",      "Move forward"),
+        ("S / Down",    "Move backward"),
+        ("A / Left",    "Rotate left"),
+        ("D / Right",   "Rotate right"),
+        ("Space",       "Shoot"),
+        ("Left drag",   "Move / Rotate"),
+        ("Right tap",   "Shoot"),
     ]
 
     start_y = SCREEN_HEIGHT // 2 - (len(controls) * 40) // 2
@@ -47,7 +49,7 @@ def draw_title_screen(screen, show_title):
         screen.blit(key_surf, key_surf.get_rect(right=SCREEN_WIDTH // 2 - 20, centery=y))
         screen.blit(action_surf, action_surf.get_rect(left=SCREEN_WIDTH // 2 + 20, centery=y))
 
-    hint = font_hint.render("Press any key to start", True, (150, 150, 150))
+    hint = font_hint.render("Tap or press any key to start", True, (150, 150, 150))
     screen.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT * 3 // 4)))
 
     pygame.display.flip()

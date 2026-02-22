@@ -4,10 +4,11 @@ import pygame
 from shot import Shot
 
 class Player(CircleShape):
-    def __init__(self, x, y):
-        super().__init__(x,y, PLAYER_RADIUS)
+    def __init__(self, x, y, touch_controls=None):
+        super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.shoot_cooldown_timer = 0
+        self.touch_controls = touch_controls
     
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -27,19 +28,32 @@ class Player(CircleShape):
         keys = pygame.key.get_pressed()
         self.shoot_cooldown_timer -= dt
 
+        rotate_input = 0.0
+        thrust_input = 0.0
+        shoot_input = False
+
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.rotate(-dt)
-
+            rotate_input -= 1.0
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.rotate(dt)
-
+            rotate_input += 1.0
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            self.move(dt)
-
+            thrust_input += 1.0
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            self.move(-dt)
-        
+            thrust_input -= 1.0
         if keys[pygame.K_SPACE]:
+            shoot_input = True
+
+        if self.touch_controls:
+            t_rotate, t_thrust, t_shoot = self.touch_controls.get_input()
+            rotate_input += t_rotate
+            thrust_input += t_thrust
+            shoot_input = shoot_input or t_shoot
+
+        if rotate_input:
+            self.rotate(rotate_input * dt)
+        if thrust_input:
+            self.move(thrust_input * dt)
+        if shoot_input:
             self.shoot()
             
     def move(self, dt):
