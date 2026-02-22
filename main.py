@@ -57,9 +57,11 @@ async def main():
     shots = pygame.sprite.Group()
 
     player = None
+    score = 0
 
     def reset_game():
-        nonlocal player
+        nonlocal player, score
+        score = 0
         updatable.empty()
         drawable.empty()
         asteroids.empty()
@@ -120,7 +122,13 @@ async def main():
                 if asteroid.collides_with(shot):
                     log_event("asteroid_shot")
                     shot.kill()
-                    asteroid.split()
+                    score += 100
+                    if asteroid.split():
+                        score += 50
+
+        font_score = pygame.font.SysFont(None, 36)
+        score_surf = font_score.render(f"Score: {score}", True, "white")
+        screen.blit(score_surf, (10, 10))
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
