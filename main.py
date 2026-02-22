@@ -8,6 +8,25 @@ from shot import Shot
 import asyncio
 
 
+def draw_game_over_screen(screen, score):
+    font_title = pygame.font.SysFont(None, 80)
+    font_score = pygame.font.SysFont(None, 48)
+    font_hint  = pygame.font.SysFont(None, 28)
+
+    screen.fill("black")
+
+    title = font_title.render("GAME OVER", True, "white")
+    screen.blit(title, title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+
+    score_surf = font_score.render(f"Score: {score}", True, (200, 200, 50))
+    screen.blit(score_surf, score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+
+    hint = font_hint.render("Press any key to play again", True, (150, 150, 150))
+    screen.blit(hint, hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT * 2 // 3)))
+
+    pygame.display.flip()
+
+
 def draw_title_screen(screen, show_title):
     font_title = pygame.font.SysFont(None, 80)
     font_keys = pygame.font.SysFont(None, 36)
@@ -114,6 +133,16 @@ async def main():
             if player.collides_with(asteroid):
                 log_event("player_hit")
                 print("Game over!")
+                draw_game_over_screen(screen, score)
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            return
+                        if event.type == pygame.KEYDOWN:
+                            waiting = False
+                    clock.tick(60)
+                    await asyncio.sleep(0)
                 reset_game()
                 break
 
