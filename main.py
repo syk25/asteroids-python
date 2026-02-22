@@ -5,10 +5,10 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-import sys
+import asyncio
 
 
-def main():
+async def main():
     pygame.init()
     print(f"Starting Asteroids with pygame version: {pygame.version.ver}")
     print(f"Screen width: {SCREEN_WIDTH}")
@@ -23,37 +23,47 @@ def main():
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
 
-    Player.containers = (updatable, drawable)
-    Asteroid.containers = (asteroids, updatable, drawable)
-    AsteroidField.containers = (updatable)
-    Shot.containers = (shots, drawable, updatable)
-    
+    player = None
 
-    asteroidField = AsteroidField()
+    def reset_game():
+        nonlocal player
+        updatable.empty()
+        drawable.empty()
+        asteroids.empty()
+        shots.empty()
 
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        Player.containers = (updatable, drawable)
+        Asteroid.containers = (asteroids, updatable, drawable)
+        AsteroidField.containers = (updatable)
+        Shot.containers = (shots, drawable, updatable)
+
+        AsteroidField()
+        player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
+    reset_game()
 
     while True:
 
         log_state()
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
 
         screen.fill("black")
-        
+
         for thing in drawable:
             thing.draw(screen)
-        
+
         updatable.update(dt)
 
         for asteroid in asteroids:
             if player.collides_with(asteroid):
                 log_event("player_hit")
                 print("Game over!")
-                sys.exit()
-        
+                reset_game()
+                break
+
         for asteroid in asteroids:
             for shot in shots:
                 if asteroid.collides_with(shot):
@@ -63,9 +73,8 @@ def main():
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
+        await asyncio.sleep(0)
 
-
-        
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
