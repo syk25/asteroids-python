@@ -12,3 +12,7 @@ wheels/
 # game files
 game_state.jsonl
 game_events.jsonl
+
+# release builds (host on GitHub Releases instead)
+docs/asteroids-python.apk
+docs/asteroids-python.tar.gz
